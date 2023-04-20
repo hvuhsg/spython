@@ -19,23 +19,34 @@ type Lexer struct {
 func New(data string) Lexer {
 	lexer := Lexer{data: data}
 
-	lexer.registerRegexMatcher("if", token.If)
-	lexer.registerRegexMatcher("def", token.Def)
-	lexer.registerRegexMatcher("return", token.Return)
+	lexer.registerSimpleMatcher("if", token.If)
+	lexer.registerSimpleMatcher("def", token.Function)
+	lexer.registerSimpleMatcher("return", token.Return)
+	lexer.registerSimpleMatcher("while", token.While)
+	lexer.registerRegexMatcher(`\d*`, token.Int)
+	lexer.registerSimpleMatcher("\n", token.ENDL)
 
-	lexer.registerRegexMatcher("==", token.EQUALS)
-	lexer.registerRegexMatcher("==", token.NOT_EQUALS)
-	lexer.registerRegexMatcher("<=", token.SMALLER_EQ)
-	lexer.registerRegexMatcher(">=", token.BIGGER_EQ)
-	lexer.registerRegexMatcher(`\+`, token.PLUS)
-	lexer.registerRegexMatcher("-", token.MINUS)
-	lexer.registerRegexMatcher("*", token.ASTRIKS)
-	lexer.registerRegexMatcher("/", token.SLASH)
-	lexer.registerRegexMatcher(`=`, token.ASSIGN)
-	lexer.registerRegexMatcher(":", token.COLON)
-	lexer.registerRegexMatcher(",", token.COMA)
-	lexer.registerRegexMatcher(`\(`, token.LEFT_PARAN)
-	lexer.registerRegexMatcher(`\)`, token.RIGHT_PARAN)
+	// logic gates
+	lexer.registerSimpleMatcher("or", token.Or)
+	lexer.registerSimpleMatcher("and", token.And)
+
+	lexer.registerSimpleMatcher("==", token.Equal)
+	lexer.registerSimpleMatcher("!=", token.NotEqual)
+	lexer.registerSimpleMatcher(">=", token.GreaterThenEqual)
+	lexer.registerSimpleMatcher("<=", token.LessThenEqual)
+	lexer.registerSimpleMatcher("<", token.LessThan)
+	lexer.registerSimpleMatcher(">", token.GreaterThan)
+	lexer.registerSimpleMatcher("+", token.Plus)
+	lexer.registerSimpleMatcher("-", token.Minus)
+	lexer.registerSimpleMatcher("*", token.Asterisk)
+	lexer.registerSimpleMatcher("/", token.Slash)
+	lexer.registerSimpleMatcher(`=`, token.Assign)
+	lexer.registerSimpleMatcher(":", token.Colon)
+	lexer.registerSimpleMatcher(",", token.Comma)
+	lexer.registerSimpleMatcher("(", token.LeftParen)
+	lexer.registerSimpleMatcher(")", token.RightParen)
+
+	lexer.registerRegexMatcher("[a-zA-Z]([a-zA-Z0-9]*)", token.Identifier)
 
 	return lexer
 }
@@ -44,19 +55,28 @@ func (l *Lexer) NextToken() token.Token {
 	l.skipWhitespace()
 
 	if l.isEnd() {
-		return l.newToken(token.EOF, "EOF")
+		return l.newToken(token.EOF, "")
 	}
 
 	currentData := l.currentData()
 
 	for _, matcher := range l.matchers {
 		tok := matcher(currentData, l)
-		if token.IsNull(tok) {
+		if tok.Type == token.Illegal {
 			continue
 		}
 
-		l.cursor += len(tok.Value)
-		l.col += len(tok.Value)
+		l.cursor += len(tok.Literal)
+		l.col += len(tok.Literal)
+
+		if tok.Type == token.ENDL {
+			l.col = 0
+			l.row += 1
+			l.tab = 0
+			tok.Col = l.col
+			tok.Row += l.row
+			tok.Tab = l.tab
+		}
 
 		return tok
 	}
@@ -73,15 +93,10 @@ func (l *Lexer) skipWhitespace() {
 		case ' ':
 			l.cursor += 1
 			l.col += 1
-		case '\n':
-			l.cursor += 1
-			l.col = 0
-			l.row += 1
-			l.tab = 0
 		case '\t':
 			l.cursor += 1
 			l.col += 1
-			l.tab += 0
+			l.tab += 1
 		default:
 			hasWhitespace = false
 		}
@@ -96,12 +111,12 @@ func (l *Lexer) currentData() string {
 	return l.data[l.cursor:]
 }
 
-func (l *Lexer) registerRegexMatcher(pattern string, tokenTyp int) {
+func (l *Lexer) registerRegexMatcher(pattern string, tokenTyp token.TokenType) {
 	re := regexp.MustCompile(`^` + pattern)
 	matcher := func(data string, l *Lexer) token.Token {
 		res := re.FindString(data)
 		if res == "" {
-			return token.Null()
+			return l.newToken(token.Illegal, "")
 		}
 
 		return l.newToken(tokenTyp, res)
@@ -110,6 +125,18 @@ func (l *Lexer) registerRegexMatcher(pattern string, tokenTyp int) {
 	l.matchers = append(l.matchers, matcher)
 }
 
-func (l *Lexer) newToken(typ int, val string) token.Token {
-	return token.New(typ, val, l.row, l.col, l.tab)
+func (l *Lexer) newToken(typ token.TokenType, val string) token.Token {
+	return token.Token{Type: typ, Literal: val, Row: l.row, Col: l.col, Tab: l.tab}
+}
+
+func (l *Lexer) registerSimpleMatcher(word string, tokenTyp token.TokenType) {
+	matcher := func(data string, l *Lexer) token.Token {
+		if len(data) < len(word) || data[:len(word)] != word {
+			return l.newToken(token.Illegal, "")
+		}
+
+		return l.newToken(tokenTyp, word)
+	}
+
+	l.matchers = append(l.matchers, matcher)
 }
