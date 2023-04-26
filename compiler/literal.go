@@ -10,3 +10,9 @@ func (c *compiler) compileIntegerLiteral(intLit *ast.IntegerLiteral) error {
 	c.cstate.pushReg(cnst)
 	return nil
 }
+
+func (c *compiler) compileFloatLiteral(floatLit *ast.FloatLiteral) error {
+	cnst := constant.NewFloat(Float, floatLit.Value)
+	c.cstate.pushReg(cnst)
+	return nil
+}

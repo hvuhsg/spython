@@ -24,6 +24,7 @@ func New(data string) Lexer {
 	lexer.registerSimpleMatcher("def", token.Function)
 	lexer.registerSimpleMatcher("return", token.Return)
 	lexer.registerSimpleMatcher("while", token.While)
+	lexer.registerRegexMatcher(`[0-9]*\.[0-9]+`, token.Float)
 	lexer.registerRegexMatcher(`\d*`, token.Int)
 	lexer.registerSimpleMatcher("\n", token.ENDL)
 

@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	code := "a = 5\nif a == 5:\n\ta = 0\nelse:\n\ta = 1\n"
+	code := "a = 5.1\nif a == 5.1:\n\ta = 0.1\nelse:\n\ta = 1.1\n"
 	fmt.Println("Code:")
 	fmt.Println(code)
 	fmt.Println()

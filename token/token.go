@@ -18,6 +18,7 @@ const (
 	// Identifiers + Literals
 	Identifier = "Identifier" // add, x ,y, ...
 	Int        = "Int"        // 123456
+	Float      = "Float"      // 3.14
 	String     = "String"     // "x", "y"
 
 	// Operators

@@ -12,6 +12,7 @@ import (
 )
 
 var Int = types.I64
+var Float = types.Float
 
 type state struct {
 	variables  map[string]value.Value
@@ -101,6 +102,10 @@ func (c *compiler) Compile(node ast.Node) error {
 		}
 	case *ast.IntegerLiteral:
 		if err := c.compileIntegerLiteral(node); err != nil {
+			return err
+		}
+	case *ast.FloatLiteral:
+		if err := c.compileFloatLiteral(node); err != nil {
 			return err
 		}
 	case *ast.Identifier:
