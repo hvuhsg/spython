@@ -20,6 +20,7 @@ func New(data string) Lexer {
 	lexer := Lexer{data: data}
 
 	lexer.registerSimpleMatcher("if", token.If)
+	lexer.registerSimpleMatcher("else", token.Else)
 	lexer.registerSimpleMatcher("def", token.Function)
 	lexer.registerSimpleMatcher("return", token.Return)
 	lexer.registerSimpleMatcher("while", token.While)

@@ -238,8 +238,7 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	expression.Consequence = p.parseBlockStatement()
 
 	// TODO parse else if
-	if p.peekTokenIs(token.Else) {
-		p.nextToken()
+	if p.currentTokenIs(token.Else) {
 
 		if !p.expectPeek(token.Colon) {
 			return nil
