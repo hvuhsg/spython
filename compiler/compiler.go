@@ -116,6 +116,10 @@ func (c *compiler) Compile(node ast.Node) error {
 		if err := c.compileIfExpression(node); err != nil {
 			return err
 		}
+	case *ast.WhileExpression:
+		if err := c.compileWhileExpression(node); err != nil {
+			return err
+		}
 	case *ast.BlockStatement:
 		if err := c.compileBlockStatement(node); err != nil {
 			return err

@@ -8,6 +8,22 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
+var tokenToOpInt = map[string]enum.IPred{
+	token.Assign:           enum.IPredEQ,
+	token.GreaterThan:      enum.IPredSGT,
+	token.GreaterThenEqual: enum.IPredSGE,
+	token.LessThan:         enum.IPredSLT,
+	token.LessThenEqual:    enum.IPredSLE,
+}
+
+var tokenToOpFloat = map[string]enum.FPred{
+	token.Assign:           enum.FPredOEQ,
+	token.GreaterThan:      enum.FPredOGT,
+	token.GreaterThenEqual: enum.FPredOGE,
+	token.LessThan:         enum.FPredOLT,
+	token.LessThenEqual:    enum.FPredOLE,
+}
+
 func (c *compiler) compileInfixExpression(infixExp *ast.InfixExpression) error {
 	if infixExp.Operator == token.Assign {
 		return c.compileAssignInfix(infixExp)
@@ -24,16 +40,33 @@ func (c *compiler) compileInfixExpression(infixExp *ast.InfixExpression) error {
 
 	rreg := c.cstate.popReg()
 
+	if types.IsPointer(lreg.Type()) {
+		if lreg.Type().String() == "i64*" {
+			lreg = c.cstate.block.NewLoad(Int, lreg)
+			// lreg = c.cstate.block.NewPtrToInt(lreg, Int)
+		} else if lreg.Type().String() == "float*" {
+			lreg = c.cstate.block.NewLoad(Float, lreg)
+		}
+	}
+	if types.IsPointer(rreg.Type()) {
+		if rreg.Type().String() == "i64*" {
+			rreg = c.cstate.block.NewLoad(Int, lreg)
+			// rreg = c.cstate.block.NewPtrToInt(rreg, Int)
+		} else if rreg.Type().String() == "float*" {
+			rreg = c.cstate.block.NewLoad(Float, rreg)
+		}
+	}
+
 	var res value.Value
 	switch infixExp.Operator {
 	case token.Plus:
-		if types.IsInt(lreg.Type()) {
+		if lreg.Type().Equal(Int) {
 			res = c.cstate.block.NewAdd(lreg, rreg)
 		} else if types.IsFloat(lreg.Type()) {
 			res = c.cstate.block.NewFAdd(lreg, rreg)
 		}
 	case token.Minus:
-		if types.IsInt(lreg.Type()) {
+		if lreg.Type().Equal(Int) {
 			res = c.cstate.block.NewSub(lreg, rreg)
 		} else if types.IsFloat(lreg.Type()) {
 			res = c.cstate.block.NewFSub(lreg, rreg)
@@ -50,29 +83,19 @@ func (c *compiler) compileInfixExpression(infixExp *ast.InfixExpression) error {
 		} else if types.IsFloat(lreg.Type()) {
 			res = c.cstate.block.NewFDiv(lreg, rreg)
 		}
-	case token.Equal:
-		if types.IsPointer(lreg.Type()) {
-			if types.IsInt(lreg.Type()) {
-				lreg = c.cstate.block.NewPtrToInt(lreg, Int)
-			} else {
-				lreg = c.cstate.block.NewLoad(Float, lreg)
-			}
-		}
-		if types.IsPointer(rreg.Type()) {
-			if types.IsInt(rreg.Type()) {
-				rreg = c.cstate.block.NewPtrToInt(rreg, Int)
-			} else {
-				rreg = c.cstate.block.NewLoad(Float, rreg)
-			}
-		}
-		if types.IsInt(lreg.Type()) {
-			res = c.cstate.block.NewICmp(enum.IPredEQ, lreg, rreg)
-		} else if types.IsFloat(lreg.Type()) {
-			res = c.cstate.block.NewFCmp(enum.FPredOEQ, lreg, rreg)
+	default:
+		_, ok := tokenToOpInt[infixExp.Operator]
+		if !ok {
+			return c.newError("unsupported operator", infixExp.Token)
 		}
 
-	default:
-		return c.newError("operator not supported", infixExp.Token)
+		if types.IsInt(lreg.Type()) {
+			op := tokenToOpInt[infixExp.Operator]
+			res = c.cstate.block.NewICmp(op, lreg, rreg)
+		} else if types.IsFloat(lreg.Type()) {
+			op := tokenToOpFloat[infixExp.Operator]
+			res = c.cstate.block.NewFCmp(op, lreg, rreg)
+		}
 	}
 
 	c.cstate.pushReg(res)

@@ -119,6 +119,9 @@ func (p *Parser) Errors() []string {
 
 func (p *Parser) parseStatement() ast.Statement {
 	switch p.currentToken.Type {
+	case token.ENDL:
+		p.nextToken()
+		return p.parseStatement()
 	case token.Return:
 		return p.parseReturnStatement()
 	default:
