@@ -3,11 +3,11 @@ package compiler
 import "github.com/hvuhsg/spython/ast"
 
 func (c *compiler) compileWhileExpression(whileExp *ast.WhileExpression) error {
-	end := c.cstate.function.NewBlock("")
+	end := c.newBlock("")
 	priv := c.cstate.block
 
 	// Create while block
-	while := c.cstate.function.NewBlock("")
+	while := c.newBlock("")
 	c.cstate.block = while
 	if err := c.Compile(whileExp.Condition); err != nil {
 		return err

@@ -37,10 +37,9 @@ func (p *Program) TokenLiteral() string {
 func (p *Program) String() string {
 	var out bytes.Buffer
 
-	// out.WriteString("\n")
-
 	for _, s := range p.Statements {
 		out.WriteString(s.String())
+		out.WriteString(token.ENDL)
 	}
 
 	return out.String()
@@ -61,7 +60,7 @@ func (bs *BlockStatement) String() string {
 		for i := 0; i < bs.Level; i++ {
 			out.WriteString("\t")
 		}
-		out.WriteString(s.String())
+		out.WriteString(s.String() + token.ENDL)
 	}
 
 	return out.String()

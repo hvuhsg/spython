@@ -25,7 +25,7 @@ func main() {
 	}
 
 	code := string(data)
-	// code := "a = 100000000\n\nwhile a > 0:\n\ta = a - 1\n"
+	// code := "a = 0\na = 1 + a"
 
 	fmt.Println("Code:")
 	fmt.Println(code)

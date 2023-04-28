@@ -60,19 +60,3 @@ const (
 	For      = "For"
 	While    = "while"
 )
-
-var keywords = map[string]TokenType{
-	"fn":     Function,
-	"true":   True,
-	"false":  False,
-	"if":     If,
-	"else":   Else,
-	"return": Return,
-}
-
-func LookupIdentifierType(identifier string) TokenType {
-	if tok, ok := keywords[identifier]; ok {
-		return tok
-	}
-	return Identifier
-}

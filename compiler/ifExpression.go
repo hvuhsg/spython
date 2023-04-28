@@ -6,7 +6,7 @@ import (
 )
 
 func (c *compiler) compileIfExpression(ifExp *ast.IfExpression) error {
-	end := c.cstate.function.NewBlock("")
+	end := c.newBlock("")
 
 	// compile condition
 	if err := c.Compile(ifExp.Condition); err != nil {

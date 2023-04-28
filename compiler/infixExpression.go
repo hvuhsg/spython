@@ -1,6 +1,8 @@
 package compiler
 
 import (
+	"fmt"
+
 	"github.com/hvuhsg/spython/ast"
 	"github.com/hvuhsg/spython/token"
 	"github.com/llir/llvm/ir/enum"
@@ -37,24 +39,15 @@ func (c *compiler) compileInfixExpression(infixExp *ast.InfixExpression) error {
 	if err := c.Compile(infixExp.Right); err != nil {
 		return err
 	}
-
 	rreg := c.cstate.popReg()
 
 	if types.IsPointer(lreg.Type()) {
-		if lreg.Type().String() == "i64*" {
-			lreg = c.cstate.block.NewLoad(Int, lreg)
-			// lreg = c.cstate.block.NewPtrToInt(lreg, Int)
-		} else if lreg.Type().String() == "float*" {
-			lreg = c.cstate.block.NewLoad(Float, lreg)
-		}
+		ptrTyp := lreg.Type().(*types.PointerType)
+		lreg = c.newLoad(ptrTyp.ElemType, lreg)
 	}
 	if types.IsPointer(rreg.Type()) {
-		if rreg.Type().String() == "i64*" {
-			rreg = c.cstate.block.NewLoad(Int, lreg)
-			// rreg = c.cstate.block.NewPtrToInt(rreg, Int)
-		} else if rreg.Type().String() == "float*" {
-			rreg = c.cstate.block.NewLoad(Float, rreg)
-		}
+		ptrTyp := rreg.Type().(*types.PointerType)
+		rreg = c.newLoad(ptrTyp.ElemType, rreg)
 	}
 
 	var res value.Value
@@ -113,13 +106,20 @@ func (c *compiler) compileAssignInfix(assignExp *ast.InfixExpression) error {
 		return c.newError("can assign only into identifier", assignExp.Token)
 	}
 
-	vr := c.cstate.GetVariable(identifier.TokenLiteral())
+	varName := identifier.TokenLiteral()
+
+	vr := c.cstate.getVariable(varName)
 	if vr == nil {
+		// Create new variable
 		vr := c.cstate.block.NewAlloca(reg.Type())
-		vr.SetName(identifier.TokenLiteral())
+		vr.SetName(varName)
 		c.cstate.block.NewStore(reg, vr)
-		c.cstate.AddVariable(identifier.TokenLiteral(), vr)
+		c.cstate.addVariable(varName, vr)
 	} else {
+		// Check if reg type is identical to var type
+		if reg.Type().String()+"*" != vr.Type().String() {
+			return c.newError(fmt.Sprintf("can not assign type %s into %s", reg.Type().String(), varName), assignExp.Token)
+		}
 		c.cstate.block.NewStore(reg, vr)
 	}
 

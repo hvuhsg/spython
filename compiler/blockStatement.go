@@ -5,7 +5,7 @@ import "github.com/hvuhsg/spython/ast"
 func (c *compiler) compileBlockStatement(blockStat *ast.BlockStatement) error {
 	priv := c.cstate.block
 
-	b := c.cstate.function.NewBlock("")
+	b := c.newBlock("")
 	c.cstate.block = b
 
 	for _, statement := range blockStat.Statements {
