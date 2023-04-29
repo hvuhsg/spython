@@ -14,15 +14,14 @@ func (c *context) compileIdentifier(ident *ast.Identifier) error {
 	}
 
 	// derefrence variable value into register
-	var typ types.Type
 	if types.IsPointer(variable.Type()) {
 		ptr := variable.Type().(*types.PointerType)
-		typ = ptr.ElemType
+		typ := ptr.ElemType
+		value := c.NewLoad(typ, variable)
+		c.pushReg(value)
 	} else {
-		typ = variable.Type()
+		c.pushReg(variable)
 	}
 
-	value := c.NewLoad(typ, variable)
-	c.pushReg(value)
 	return nil
 }

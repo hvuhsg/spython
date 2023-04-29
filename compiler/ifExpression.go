@@ -8,22 +8,26 @@ func (c *context) compileIfExpression(ifExp *ast.IfExpression) error {
 	endif := c.newContext("endif")
 
 	// compile condition
-	if err := c.Compile(ifExp.Condition); err != nil {
+	if err := c.compile(ifExp.Condition); err != nil {
 		return err
 	}
 	cond := c.popReg()
 
 	ifCtx := c.newContext("if.then")
-	if err := ifCtx.Compile(ifExp.Consequence); err != nil {
+	if err := ifCtx.compile(ifExp.Consequence); err != nil {
 		return err
 	}
-	ifCtx.NewBr(endif.Block)
+
+	// only jump to endif if there is no return
+	if reVal := ifCtx.popReg(); reVal == nil {
+		ifCtx.NewBr(endif.Block)
+	}
 
 	// create else brach
-	var elseCtx *context
+	var elseCtx *context = endif
 	if ifExp.Alternative != nil {
 		elseCtx = c.newContext("if.else")
-		if err := elseCtx.Compile(ifExp.Alternative); err != nil {
+		if err := elseCtx.compile(ifExp.Alternative); err != nil {
 			return err
 		}
 		elseCtx.NewBr(endif.Block)

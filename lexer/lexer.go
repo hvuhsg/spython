@@ -19,6 +19,7 @@ type Lexer struct {
 func New(data string) Lexer {
 	lexer := Lexer{data: data}
 
+	lexer.registerSimpleMatcher("None", token.None)
 	lexer.registerSimpleMatcher("if", token.If)
 	lexer.registerSimpleMatcher("else", token.Else)
 	lexer.registerSimpleMatcher("def", token.Function)
@@ -32,6 +33,7 @@ func New(data string) Lexer {
 	lexer.registerSimpleMatcher("or", token.Or)
 	lexer.registerSimpleMatcher("and", token.And)
 
+	lexer.registerSimpleMatcher("->", token.Arrow)
 	lexer.registerSimpleMatcher("==", token.Equal)
 	lexer.registerSimpleMatcher("!=", token.NotEqual)
 	lexer.registerSimpleMatcher(">=", token.GreaterThenEqual)

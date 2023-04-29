@@ -9,14 +9,14 @@ func (c *context) compileWhileExpression(whileExp *ast.WhileExpression) error {
 
 	// Create while block
 	condition := c.newContext("while.condition")
-	if err := condition.Compile(whileExp.Condition); err != nil {
+	if err := condition.compile(whileExp.Condition); err != nil {
 		return err
 	}
 	cond := condition.popReg()
 
 	// Create loop block
 	loop := c.newContext("while.loop")
-	if err := loop.Compile(whileExp.Consequence); err != nil {
+	if err := loop.compile(whileExp.Consequence); err != nil {
 		return err
 	}
 	loop.NewBr(endwhile.Block)

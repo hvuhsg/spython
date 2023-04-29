@@ -162,7 +162,7 @@ func (ie *IfExpression) String() string {
 	out.WriteString(ie.Consequence.String())
 
 	if ie.Alternative != nil {
-		out.WriteString("else ")
+		out.WriteString("else" + token.Colon + token.ENDL)
 		out.WriteString(ie.Alternative.String())
 	}
 
@@ -283,6 +283,7 @@ func (fp *FunctionParameter) String() string {
 type FunctionLiteral struct {
 	Token      token.Token // The 'fn' token
 	Parameters []*FunctionParameter
+	ReturnType *Identifier
 	Body       *BlockStatement
 }
 
@@ -301,6 +302,11 @@ func (fl *FunctionLiteral) String() string {
 	out.WriteString(token.LeftParen)
 	out.WriteString(strings.Join(params, token.Comma+" "))
 	out.WriteString(token.RightParen)
+
+	if fl.ReturnType != nil {
+		out.WriteString(" " + token.Arrow + " " + fl.ReturnType.Value)
+	}
+
 	out.WriteString(token.Colon)
 	out.WriteString(token.ENDL)
 	out.WriteString(fl.Body.String())

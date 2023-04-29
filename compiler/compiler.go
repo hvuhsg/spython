@@ -11,6 +11,13 @@ import (
 
 var Int = types.I64
 var Float = types.Float
+var None = types.Void
+
+var nameToType map[string]types.Type = map[string]types.Type{
+	"int":   Int,
+	"float": Float,
+	"None":  None,
+}
 
 type compiler struct {
 	module   *ir.Module
@@ -38,10 +45,10 @@ func (c *compiler) IR() string {
 }
 
 func (c *compiler) Compile(prog *ast.Program) error {
-	return c.ctx.Compile(prog)
+	return c.ctx.compile(prog)
 }
 
-func (c *context) Compile(node ast.Node) error {
+func (c *context) compile(node ast.Node) error {
 	switch node := node.(type) {
 	case *ast.Program:
 		if err := c.compileProgram(node); err != nil {
@@ -77,6 +84,18 @@ func (c *context) Compile(node ast.Node) error {
 		}
 	case *ast.BlockStatement:
 		if err := c.compileBlockStatement(node); err != nil {
+			return err
+		}
+	case *ast.FunctionLiteral:
+		if err := c.compileFunctionLiteral(node); err != nil {
+			return err
+		}
+	case *ast.ReturnStatement:
+		if err := c.compileReturnStatement(node); err != nil {
+			return err
+		}
+	case *ast.CallExpression:
+		if err := c.compileCallExpression(node); err != nil {
 			return err
 		}
 	default:

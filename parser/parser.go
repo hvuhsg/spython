@@ -316,6 +316,14 @@ func (p *Parser) parseFunctionLiteral() ast.Expression {
 
 	lit.Parameters = p.parseFunctionParameters()
 
+	if p.peekTokenIs(token.Arrow) {
+		p.nextToken()
+		p.nextToken()
+		lit.ReturnType = p.parseIdentifier().(*ast.Identifier)
+	} else {
+		lit.ReturnType = &ast.Identifier{Token: token.Token{}, Value: token.None}
+	}
+
 	if !p.expectPeek(token.Colon) {
 		return nil
 	}

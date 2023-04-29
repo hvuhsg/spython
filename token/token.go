@@ -20,6 +20,7 @@ const (
 	Int        = "Int"        // 123456
 	Float      = "Float"      // 3.14
 	String     = "String"     // "x", "y"
+	None       = "None"       // None
 
 	// Operators
 	Assign   = "="
@@ -42,6 +43,7 @@ const (
 	Comma     = ","
 	Semicolon = ";"
 	Colon     = ":"
+	Arrow     = "->"
 
 	LeftParen    = "("
 	RightParen   = ")"

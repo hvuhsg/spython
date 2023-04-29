@@ -31,12 +31,12 @@ func (c *context) compileInfixExpression(infixExp *ast.InfixExpression) error {
 		return c.compileAssignInfix(infixExp)
 	}
 
-	if err := c.Compile(infixExp.Left); err != nil {
+	if err := c.compile(infixExp.Left); err != nil {
 		return err
 	}
 	lreg := c.popReg()
 
-	if err := c.Compile(infixExp.Right); err != nil {
+	if err := c.compile(infixExp.Right); err != nil {
 		return err
 	}
 	rreg := c.popReg()
@@ -96,7 +96,7 @@ func (c *context) compileInfixExpression(infixExp *ast.InfixExpression) error {
 }
 
 func (c *context) compileAssignInfix(assignExp *ast.InfixExpression) error {
-	if err := c.Compile(assignExp.Right); err != nil {
+	if err := c.compile(assignExp.Right); err != nil {
 		return err
 	}
 	reg := c.popReg()

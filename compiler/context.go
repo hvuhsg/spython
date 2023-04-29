@@ -59,3 +59,9 @@ func (c *context) popReg() value.Value {
 	c.regStack = (c.regStack)[:index]
 	return reg
 }
+
+func (c *context) peekReg() value.Value {
+	reg := c.popReg()
+	c.pushReg(reg)
+	return reg
+}

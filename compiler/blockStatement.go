@@ -6,7 +6,7 @@ import (
 
 func (c *context) compileBlockStatement(blockStat *ast.BlockStatement) error {
 	for _, statement := range blockStat.Statements {
-		err := c.Compile(statement)
+		err := c.compile(statement)
 		if err != nil {
 			return err
 		}
