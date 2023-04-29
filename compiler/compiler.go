@@ -4,32 +4,44 @@ import (
 	"fmt"
 
 	"github.com/hvuhsg/spython/ast"
-	"github.com/hvuhsg/spython/token"
 
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
-	"github.com/llir/llvm/ir/value"
 )
 
 var Int = types.I64
 var Float = types.Float
 
 type compiler struct {
-	cstate *state
+	module   *ir.Module
+	function *ir.Func
+	ctx      *context
 }
 
 func New() *compiler {
 	c := &compiler{}
-	c.cstate = newState()
+
+	mainModule := ir.NewModule()
+	c.module = mainModule
+
+	mainFunction := mainModule.NewFunc("main", Int)
+	c.function = mainFunction
+
+	startBlock := mainFunction.NewBlock("prog_entry")
+	c.ctx = newContext(mainModule, mainFunction, startBlock)
 
 	return c
 }
 
 func (c *compiler) IR() string {
-	return fmt.Sprintln(c.cstate.module)
+	return fmt.Sprintln(c.module)
 }
 
-func (c *compiler) Compile(node ast.Node) error {
+func (c *compiler) Compile(prog *ast.Program) error {
+	return c.ctx.Compile(prog)
+}
+
+func (c *context) Compile(node ast.Node) error {
 	switch node := node.(type) {
 	case *ast.Program:
 		if err := c.compileProgram(node); err != nil {
@@ -74,20 +86,3 @@ func (c *compiler) Compile(node ast.Node) error {
 
 	return nil
 }
-
-func (c *compiler) newError(s string, tok token.Token) error {
-	c.cstate.token = tok
-	return fmt.Errorf(s)
-}
-
-func (c *compiler) newLoad(t types.Type, v value.Value) *ir.InstLoad {
-	return c.cstate.block.NewLoad(t, v)
-}
-
-func (c *compiler) newBlock(name string) *ir.Block {
-	return c.cstate.function.NewBlock(name)
-}
-
-// func (c *compiler) newFunction(name string, retTyp types.Type, params ...*ir.Param) *ir.Func {
-// 	return c.cstate.module.NewFunc(name, retTyp, params...)
-// }

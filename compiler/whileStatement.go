@@ -1,33 +1,33 @@
 package compiler
 
-import "github.com/hvuhsg/spython/ast"
+import (
+	"github.com/hvuhsg/spython/ast"
+)
 
-func (c *compiler) compileWhileExpression(whileExp *ast.WhileExpression) error {
-	end := c.newBlock("")
-	priv := c.cstate.block
+func (c *context) compileWhileExpression(whileExp *ast.WhileExpression) error {
+	endwhile := c.newContext("while.end")
 
 	// Create while block
-	while := c.newBlock("")
-	c.cstate.block = while
-	if err := c.Compile(whileExp.Condition); err != nil {
+	condition := c.newContext("while.condition")
+	if err := condition.Compile(whileExp.Condition); err != nil {
 		return err
 	}
-	cond := c.cstate.popReg()
+	cond := condition.popReg()
 
 	// Create loop block
-	c.cstate.block = priv
-	if err := c.Compile(whileExp.Consequence); err != nil {
+	loop := c.newContext("while.loop")
+	if err := loop.Compile(whileExp.Consequence); err != nil {
 		return err
 	}
-	loop := c.cstate.popBlock()
-	loop.NewBr(while)
+	loop.NewBr(endwhile.Block)
 
 	// Create loop condition
-	while.NewCondBr(cond, loop, end)
+	condition.NewCondBr(cond, loop.Block, endwhile.Block)
 
 	// Jump to while
-	priv.NewBr(while)
+	c.NewBr(condition.Block)
 
-	c.cstate.block = end
+	// Continue with endif block
+	c.Block = endwhile.Block
 	return nil
 }

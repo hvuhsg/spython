@@ -56,11 +56,16 @@ func (bs *BlockStatement) TokenLiteral() string { return bs.Token.Literal }
 func (bs *BlockStatement) String() string {
 	var out bytes.Buffer
 
-	for _, s := range bs.Statements {
+	for j, s := range bs.Statements {
 		for i := 0; i < bs.Level; i++ {
 			out.WriteString("\t")
 		}
-		out.WriteString(s.String() + token.ENDL)
+
+		out.WriteString(s.String())
+
+		if j < len(bs.Statements)-1 {
+			out.WriteString(token.ENDL)
+		}
 	}
 
 	return out.String()
@@ -82,7 +87,6 @@ func (rs *ReturnStatement) String() string {
 		out.WriteString(rs.ReturnValue.String())
 	}
 
-	out.WriteString(token.ENDL)
 	return out.String()
 }
 

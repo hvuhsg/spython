@@ -2,37 +2,37 @@ package compiler
 
 import (
 	"github.com/hvuhsg/spython/ast"
-	"github.com/llir/llvm/ir"
 )
 
-func (c *compiler) compileIfExpression(ifExp *ast.IfExpression) error {
-	end := c.newBlock("")
+func (c *context) compileIfExpression(ifExp *ast.IfExpression) error {
+	endif := c.newContext("endif")
 
 	// compile condition
 	if err := c.Compile(ifExp.Condition); err != nil {
 		return err
 	}
-	cond := c.cstate.popReg()
+	cond := c.popReg()
 
-	if err := c.Compile(ifExp.Consequence); err != nil {
+	ifCtx := c.newContext("if.then")
+	if err := ifCtx.Compile(ifExp.Consequence); err != nil {
 		return err
 	}
-	target := c.cstate.popBlock()
-	target.NewBr(end)
+	ifCtx.NewBr(endif.Block)
 
 	// create else brach
-	var ault *ir.Block = nil
+	var elseCtx *context
 	if ifExp.Alternative != nil {
-		if err := c.Compile(ifExp.Alternative); err != nil {
+		elseCtx = c.newContext("if.else")
+		if err := elseCtx.Compile(ifExp.Alternative); err != nil {
 			return err
 		}
-		ault = c.cstate.popBlock()
-		ault.NewBr(end)
+		elseCtx.NewBr(endif.Block)
 	}
 
 	// create branch
-	c.cstate.block.NewCondBr(cond, target, ault)
+	c.NewCondBr(cond, ifCtx.Block, elseCtx.Block)
 
-	c.cstate.block = end
+	// Continue with endif block
+	c.Block = endif.Block
 	return nil
 }

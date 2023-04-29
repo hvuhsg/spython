@@ -5,14 +5,14 @@ import (
 	"github.com/llir/llvm/ir/constant"
 )
 
-func (c *compiler) compileIntegerLiteral(intLit *ast.IntegerLiteral) error {
+func (c *context) compileIntegerLiteral(intLit *ast.IntegerLiteral) error {
 	cnst := constant.NewInt(Int, intLit.Value)
-	c.cstate.pushReg(cnst)
+	c.pushReg(cnst)
 	return nil
 }
 
-func (c *compiler) compileFloatLiteral(floatLit *ast.FloatLiteral) error {
+func (c *context) compileFloatLiteral(floatLit *ast.FloatLiteral) error {
 	cnst := constant.NewFloat(Float, floatLit.Value)
-	c.cstate.pushReg(cnst)
+	c.pushReg(cnst)
 	return nil
 }

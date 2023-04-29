@@ -11,21 +11,21 @@ import (
 
 func main() {
 	// Read SPython code
-	if len(os.Args) < 2 {
-		fmt.Println("Please specify a file path as an argument.")
-		return
-	}
+	// if len(os.Args) < 2 {
+	// 	fmt.Println("Please specify a file path as an argument.")
+	// 	return
+	// }
 
-	path := os.Args[1]
+	// path := os.Args[1]
 
-	data, err := os.ReadFile(path)
-	if err != nil {
-		fmt.Println("Error reading file:", err)
-		return
-	}
+	// data, err := os.ReadFile(path)
+	// if err != nil {
+	// 	fmt.Println("Error reading file:", err)
+	// 	return
+	// }
 
-	code := string(data)
-	// code := "a = 0\na = 1 + a"
+	// code := string(data)
+	code := "a = 10\nwhile a > 0:\n\ta = a - 1\n"
 
 	fmt.Println("Code:")
 	fmt.Println(code)
@@ -40,7 +40,7 @@ func main() {
 	fmt.Println(ast.String())
 	fmt.Println()
 
-	err = compiler.Compile(ast)
+	err := compiler.Compile(ast)
 	if err != nil {
 		fmt.Printf("error: %s\n", err.Error())
 	}

@@ -7,10 +7,10 @@ import (
 	"github.com/llir/llvm/ir/types"
 )
 
-func (c *compiler) compileIdentifier(ident *ast.Identifier) error {
-	variable := c.cstate.getVariable(ident.TokenLiteral())
+func (c *context) compileIdentifier(ident *ast.Identifier) error {
+	variable := c.getVar(ident.TokenLiteral())
 	if variable == nil {
-		return c.newError(fmt.Sprintf("variable %s is not defined", ident.TokenLiteral()), ident.Token)
+		return newError(fmt.Sprintf("variable %s is not defined", ident.TokenLiteral()), NameError, ident.Token)
 	}
 
 	// derefrence variable value into register
@@ -22,7 +22,7 @@ func (c *compiler) compileIdentifier(ident *ast.Identifier) error {
 		typ = variable.Type()
 	}
 
-	value := c.newLoad(typ, variable)
-	c.cstate.pushReg(value)
+	value := c.NewLoad(typ, variable)
+	c.pushReg(value)
 	return nil
 }
