@@ -18,14 +18,14 @@ func main() {
 
 	// path := os.Args[1]
 
-	// data, err := os.ReadFile(path)
-	// if err != nil {
-	// 	fmt.Println("Error reading file:", err)
+	// data, errr := os.ReadFile(path)
+	// if errr != nil {
+	// 	fmt.Println("Error reading file:", errr)
 	// 	return
 	// }
 
 	// code := string(data)
-	code := "def fib(n: int) -> int:\n\tif n < 1:\n\t\treturn 1\n\treturn fib(n-1) + fib(n-2)\na = fib(10)"
+	code := "def fib(n: int) -> int:\n\ta = 0\n\tb = 1\n\twhile n > 0:\n\t\tn = n - 1\n\t\tb = a + b\n\t\ta = b - a\n\n\treturn b\nreturn fib(40)"
 
 	fmt.Println("Code:")
 	fmt.Println(code)
@@ -36,13 +36,20 @@ func main() {
 	compiler := compiler.New()
 
 	ast := parser.ParseProgram()
+
+	if len(parser.Errors()) > 0 {
+		fmt.Printf("Parser errors: %v\n", parser.Errors())
+		os.Exit(1)
+	}
+
 	fmt.Println("Parser:")
 	fmt.Println(ast.String())
 	fmt.Println()
 
 	err := compiler.Compile(ast)
 	if err != nil {
-		fmt.Printf("error: %s\n", err.Error())
+		fmt.Printf("Compiler error: %s\n", err.Error())
+		os.Exit(1)
 	}
 
 	llvmCode := compiler.IR()

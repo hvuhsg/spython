@@ -1,7 +1,13 @@
 def fib(n: int) -> int:
-	if n < 1:
-		return 1
-	
-	return fib(n-1) + fib(n+1)
+	a = 0
+	b = 1
 
-a = fib(10)
+	while n > 0:
+		n = n - 1
+		b = a + b
+		a = b - a
+	
+	return b
+
+a = fib(41)
+return a

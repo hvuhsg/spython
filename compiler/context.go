@@ -51,7 +51,7 @@ func (c *context) pushReg(val value.Value) {
 
 func (c *context) popReg() value.Value {
 	if len(c.regStack) == 0 {
-		panic("register not found")
+		return nil
 	}
 
 	index := len(c.regStack) - 1

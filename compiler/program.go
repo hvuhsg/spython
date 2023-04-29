@@ -12,7 +12,13 @@ func (c *context) compileProgram(program *ast.Program) error {
 			return err
 		}
 	}
-	c.NewRet(constant.NewInt(Int, 0))
+
+	retVal := c.popReg()
+	if retVal != nil {
+		c.NewRet(retVal)
+	} else {
+		c.NewRet(constant.NewInt(Int, 0))
+	}
 
 	return nil
 }
