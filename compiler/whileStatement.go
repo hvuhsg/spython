@@ -19,7 +19,7 @@ func (c *context) compileWhileExpression(whileExp *ast.WhileExpression) error {
 	if err := loop.compile(whileExp.Consequence); err != nil {
 		return err
 	}
-	loop.NewBr(endwhile.Block)
+	loop.NewBr(condition.Block)
 
 	// Create loop condition
 	condition.NewCondBr(cond, loop.Block, endwhile.Block)
