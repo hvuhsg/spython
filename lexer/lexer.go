@@ -33,6 +33,7 @@ func New(data string) Lexer {
 	lexer.registerSimpleMatcher("or", token.Or)
 	lexer.registerSimpleMatcher("and", token.And)
 
+	lexer.registerSimpleMatcher("%", token.Mod)
 	lexer.registerSimpleMatcher("->", token.Arrow)
 	lexer.registerSimpleMatcher("==", token.Equal)
 	lexer.registerSimpleMatcher("!=", token.NotEqual)

@@ -24,6 +24,7 @@ const (
 
 	// Operators
 	Assign   = "="
+	Mod      = "%"
 	Plus     = "+"
 	Minus    = "-"
 	Bang     = "!"

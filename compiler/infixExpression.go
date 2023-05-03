@@ -76,6 +76,12 @@ func (c *context) compileInfixExpression(infixExp *ast.InfixExpression) error {
 		} else if types.IsFloat(lreg.Type()) {
 			res = c.NewFDiv(lreg, rreg)
 		}
+	case token.Mod:
+		if types.IsInt(lreg.Type()) {
+			res = c.NewSRem(lreg, rreg)
+		} else if types.IsFloat(lreg.Type()) {
+			res = c.NewFRem(lreg, rreg)
+		}
 	default:
 		_, ok := tokenToOpInt[infixExp.Operator]
 		if !ok {
