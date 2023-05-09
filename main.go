@@ -25,7 +25,7 @@ func main() {
 	// }
 
 	// code := string(data)
-	code := "def fib(n: int) -> int:\n\ta = 0\n\tb = 1\n\twhile n > 0:\n\t\tn = n - 1\n\t\tb = a + b\n\t\ta = b - a\n\n\treturn b\nreturn fib(40)"
+	code := "def b():\n\tif 1 > 2:\n\t\ta = 1\nelse:\n\t\ta = 2\n\n\treturn 2"
 
 	fmt.Println("Code:")
 	fmt.Println(code)

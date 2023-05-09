@@ -75,3 +75,43 @@ func TestLexerIf(t *testing.T) {
 		}
 	}
 }
+
+func TestIfElse(t *testing.T) {
+	lexer := New("if 1 > 2:\n\treturn 1\nelse:\n\treturn 2")
+
+	expectedTokens := []token.Token{
+		{Type: token.If, Literal: "if", Tab: 0},
+		{Type: token.Int, Literal: "1", Tab: 0},
+		{Type: token.GreaterThan, Literal: ">", Tab: 0},
+		{Type: token.Int, Literal: "2", Tab: 0},
+		{Type: token.Colon, Literal: ":", Tab: 0},
+		{Type: token.ENDL, Literal: "\n", Tab: 0},
+		{Type: token.Return, Literal: "return", Tab: 1},
+		{Type: token.Int, Literal: "1", Tab: 1},
+		{Type: token.ENDL, Literal: "\n", Tab: 0},
+		{Type: token.Else, Literal: "else", Tab: 0},
+		{Type: token.Colon, Literal: ":", Tab: 0},
+		{Type: token.ENDL, Literal: "\n", Tab: 0},
+		{Type: token.Return, Literal: "return", Tab: 1},
+		{Type: token.Int, Literal: "2", Tab: 1},
+	}
+
+	for index, et := range expectedTokens {
+		token := lexer.NextToken()
+
+		if token.Type != et.Type {
+			t.Errorf("At index: %d", index)
+			t.Fatalf("Expected token type %s got %s", et.Type, token.Type)
+		}
+
+		if token.Literal != et.Literal {
+			t.Errorf("At index: %d", index)
+			t.Fatalf("Expected token value '%s' got '%s'", et.Literal, token.Literal)
+		}
+
+		if token.Tab != et.Tab {
+			t.Errorf("At index: %d", index)
+			t.Fatalf("Expected token tab %d got %d", et.Tab, token.Tab)
+		}
+	}
+}

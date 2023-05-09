@@ -138,7 +138,7 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	p.nextToken()
 	stmt.ReturnValue = p.parseExpression(Lowest)
 
-	if p.peekTokenIs(token.Semicolon) {
+	if p.peekTokenIs(token.ENDL) {
 		p.nextToken()
 	}
 
@@ -256,6 +256,7 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	}
 
 	expression.Consequence = p.parseBlockStatement()
+	p.nextToken()
 
 	// TODO parse else if
 	if p.currentTokenIs(token.Else) {
@@ -303,7 +304,10 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 			block.Statements = append(block.Statements, stmt)
 		}
 		// FIXME: code := "def fib(n: int) -> int:\n\ta = 0\n\tb = 1\n\twhile n > 0:\n\t\tn = n - 1\n\t\tb = a + b\n\t\ta = b - a\n\treturn b\nreturn fib(40)"
-		p.nextToken()
+
+		if p.peekInLevel(block.Level) {
+			p.nextToken()
+		}
 	}
 
 	return block
@@ -490,6 +494,10 @@ func (p *Parser) nextToken() {
 
 func (p *Parser) currentInLevel(level int) bool {
 	return p.currentToken.Tab == level
+}
+
+func (p *Parser) peekInLevel(level int) bool {
+	return p.peekToken.Tab == level
 }
 
 func (p *Parser) expectPeek(t token.TokenType) bool {
